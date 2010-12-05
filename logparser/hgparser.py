@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from logparser import *
+from log import Log
 from mercurial import ui, hg
 import os
 
