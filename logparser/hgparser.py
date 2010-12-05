@@ -9,15 +9,12 @@ class HgParser(object):
 		super(HgParser, self).__init__()
 		if not os.path.exists(source) or os.path.isfile(source):
 			raise IOError("No such repository: '{0}'".format(source))
-		repo = hg.repository(ui.ui(), source)
-		self.logs = self._log_generator(repo)
+		self.repo = hg.repository(ui.ui(), source)
+		self.logs = self._log_generator(self.repo)
 	
 	def __iter__(self):
-		return self
-	
-	def next(self):
-		return next(self.logs)
-		
+		return self.logs
+
 	def _log_generator(self, repo):
 		for i in repo:
 			log = repo[i]
