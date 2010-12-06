@@ -43,7 +43,9 @@ class SvnParser(object):
 					
 	def next(self):
 		try:
-			log = self.parse_log()
+			log = None
+			while not log:
+				log = self.parse_log()
 		except Exception, e:
 			self.cleanup()
 			raise StopIteration
@@ -75,18 +77,14 @@ class SvnParser(object):
 			if line.rstrip() == LOG_DELIM:
 				break
 			log.append(line)
-		# If log is blank, return the next log
-		if log:
-			return log
-		else:
-			return self.next_log() 
+		return log
 		
 	def parse_log(self):
 		"""
 		Parses the next log in the stream and returns a Log object 
 		representing it.
 		"""
-		string = ''.join(self.next_log())
+		string = ''.join(self.next_log()).strip()
 		m = log_re.match(string)
 		if m:	
 			log = Log(
