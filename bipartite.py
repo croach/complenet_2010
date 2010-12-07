@@ -12,8 +12,6 @@ revision comments in the repository logs.
 import networkx as nx
 import os
 
-from logparser import parse
-
 # Source code file extensions
 exts = ('.c', '.cpp', '.h', '.py', '.rb', '.java')
 	
@@ -37,12 +35,11 @@ def get_source_files(repo):
 				source_files.append(relpath(repo, filename))
 	return source_files
 
-def build_network(repo):
+def build_network(repo, logs):
 	"""
 	Constructs a bipartite network from the given set of SCM logs
 	"""
 	source_files = get_source_files(repo)
-	logs = parse(repo)
 	network = nx.Graph()
 	for log in logs:
 		network.add_node(log.author, type='author')
@@ -61,14 +58,16 @@ if __name__ == '__main__':
 		print "Optimization failed. Psyco not found on this machine"
 		
 	import sys
+	from logparser import parse
+
 	if len(sys.argv) < 2:
 		sys.exit("Usage: %s [SOURCE_DIR|LOG_FILE]" % sys.argv[0])
 	sourcedir = os.path.relpath(sys.argv[1])
-	number_of_logs = len(list(parse(sourcedir)))
-	network = build_network(sourcedir)
+	logs = list(parse(sourcedir))
+	network = build_network(sourcedir, logs)
 	authors = [n for n in network if network.node[n]['type'] == 'author']
 	files = [n for n in network if network.node[n]['type'] == 'file']
-	print "Number of Logs:    {0}".format(number_of_logs)
+	print "Number of Logs:    {0}".format(len(logs))
 	print "Number of Nodes:   {0}".format(network.number_of_nodes())
 	print "Number of Edges:   {0}".format(network.number_of_edges())
 	print "Number of Authors: {0}".format(len(authors))
