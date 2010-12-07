@@ -119,5 +119,17 @@ class SvnParser(object):
 					break
 				m = file_re.match(line) 
 				if m:
-					files.append(m.groups()[0])
+					filepath = self.remove_root(m.groups()[0])
+					files.append(filepath)
 		return files
+
+	def remove_root(self, filepath):
+		"""
+		Removes the root directory from the given path
+		
+		SVN adds '/repo/' to the begining of all filepaths. This function
+		removes that prefix to make the filepath relative to the repo.
+		"""
+		path_components = filepath.split(os.path.sep)
+		path_components = path_components[2:] # Remove the root directory
+		return os.path.sep.join(path_components)

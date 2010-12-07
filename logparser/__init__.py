@@ -22,7 +22,6 @@ def parse_repo(source):
 			repo = None
 	elif os.path.isfile(source):
 		repo = os.path.splitext(source)[1][1:]
-		print repo
 	else:
 		repo = None
 	return repo
