@@ -1,13 +1,9 @@
-import networkx as nx
+"""
+Functions for creating one-mode projections of bipartite graphs
+"""
 
-	
-def combine(lst):
-	"""
-	Creates a list of combinations of the items in the given list
-	"""
-	return [(lst[i], lst[j]) 
-			for i in xrange(len(lst)) 
-			for j in xrange(i+1,len(lst))]
+import networkx as nx
+from utilities import *
 	
 def project_graph(g, nodes):
 	"""

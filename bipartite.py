@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-
 """
-Creates a bipartite graph from SCM logs
+Functions for creating bipartite graphs from SCM logs
 
 Creates a bipartite graph from SCM logs. The two sets of nodes in the graph
 are the authors in the project's community and the files in the repository.
