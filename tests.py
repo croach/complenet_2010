@@ -35,13 +35,15 @@ def decomp_by_random(g1, g2, nodes):
 	results = decompose(g1, g2.copy(), nodes_random_order)
 	return results
 
-def decomp_by_commit_count(g1, g2, nodes):
-	commits = file("commit_count.csv").read().split()
-	commits = [elem.split(',') for elem in commits]
-	commits = [(count, author) for author, count in commits]
-	commits = sorted(commits, reverse=True)
-	commits = [author for count, author in commits]
-	decomp_by_commits = decompose(g1, g2.copy(), commits, authors)
+def decomp_by_commit_count(g1, g2, logs):
+	commits = {}
+	for log in logs:
+		if log.author not in commits:
+			commits[log.author] = 0
+		commits[log.author] += 1
+	nodes_by_commits = sort_dict(commits, descending=True)
+	results = decompose(g1, g2.copy(), nodes_by_commits)
+	return results
 	
 def decomp_by_degree(g1, g2, nodes):
 	degrees = nx.degree(g1, nodes)
@@ -83,13 +85,14 @@ def main():
 	if len(sys.argv) < 2:
 		sys.exit("Usage: %s [SOURCE_DIR|LOG_FILE]" % sys.argv[0])
 	sourcedir = os.path.relpath(sys.argv[1])
-	logs = parse(sourcedir)
+	logs = list(parse(sourcedir))
 	network = build_network(sourcedir, logs)
 	authors = [n for n in network if network.node[n]['type'] == 'author']
 	projection = project_graph(network, authors)
+	
 	results = {
 		'random'      : decomp_by_random(network, projection, authors),
-		'commits'     : decomp_by_random(network, projection, authors),
+		'commits'     : decomp_by_commit_count(network, projection, logs),
 		'degree'      : decomp_by_degree(network, projection, authors),
 		'closeness'   : decomp_by_closeness(network, projection, authors),
 		'betweenness' : decomp_by_betweenness(network, projection, authors)
