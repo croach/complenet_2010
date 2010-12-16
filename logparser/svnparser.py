@@ -4,27 +4,6 @@ from log import Log
 import os
 import re
 
-REDUNDANT_AUTHORS = {
-    'aimacintyre'    : 'andrew.macintyre',
-    'akuchlin'       : 'andrew.kuchling',
-    'akuchling'      : 'andrew.kuchling',
-    'andrewmcnamara' : 'andrew.mcnamara',
-    'anthonybaxter'  : 'anthony.baxter',
-    'arigo'          : 'armin.rigo',
-    'guido'          : 'guido.van.rossum',
-    'gvanrossum'     : 'guido.van.rossum',
-    'gward'          : 'greg.ward',
-    'jackjansen'     : 'jack.jansen',
-    'loewis'         : 'martin.v.loewis',
-    'mhammond'       : 'mark.hammond',
-    'nnorwitz'       : 'neal.norwitz',
-    'niemeyer'       : 'gustavo.niemeyer',
-    'rhettinger'     : 'raymond.hettinger',
-    'sjoerd'         : 'sjoerd.mullender',
-    'theller'        : 'thomas.heller',
-    'tim_one'        : 'tim.peters'
-}
-
 log_re = re.compile(r'^r(\d+) \| ([^ |]+) \| [^|]+ \| (\d+) lines?')
 file_re = re.compile(r'^\s+[A-Z] (.+)')
 
@@ -89,7 +68,7 @@ class SvnParser(object):
 		if m:	
 			log = Log(
 				revision = m.groups()[0],
-				author   = REDUNDANT_AUTHORS.get(m.groups()[1], m.groups()[1]),
+				author   = m.groups()[1],
 				comment  = self.parse_comment(string, int(m.groups()[2])),
 				files    = self.parse_files(string))
 			return log

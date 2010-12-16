@@ -16,6 +16,7 @@ from logparser import parse
 from bipartite import *
 from projection import *
 from decomp import *
+from authors import redundant_authors
 
 def sort_dict(dictionary, descending=False):
 	"""
@@ -81,11 +82,20 @@ def print_results(results):
 			results['betweenness'][i]
 		))
 
+def remove_redundant_authors(logs):
+	"""
+	Replaces all author names in the logs with the matching author name
+	found in the redundant authors dict.
+	"""
+	return [log._replace(author=redundant_authors.get(log.author, log.author)) 
+			for log in logs]
+
 def main():
 	if len(sys.argv) < 2:
 		sys.exit("Usage: %s [SOURCE_DIR|LOG_FILE]" % sys.argv[0])
 	sourcedir = os.path.relpath(sys.argv[1])
 	logs = list(parse(sourcedir))
+	remove_redundant_authors(logs)
 	network = build_network(sourcedir, logs)
 	authors = [n for n in network if network.node[n]['type'] == 'author']
 	projection = project_graph(network, authors)
@@ -98,41 +108,7 @@ def main():
 		'betweenness' : decomp_by_betweenness(network, projection, authors)
 	}
 	print_results(results)
-	
-	
-# 	
-# 	
-# def main():
-# 	"""
-# 	Creates a bipartite network from the given source directory and then 
-# 	projects it onto the list of file nodes.
-# 	"""
-# 	if len(sys.argv) < 2:
-# 		sys.exit("Usage: %s [SOURCE_DIR|LOG_FILE]" % sys.argv[0])
-# 	sourcedir = os.path.relpath(sys.argv[1])
-# 	logs = list(parse(sourcedir))
-# 	network = build_network(sourcedir, logs)
-# 	authors = [n for n in network if network.node[n]['type'] == 'author']
-# 	files = [n for n in network if network.node[n]['type'] == 'file']
-# 	print "#"*70
-# 	print "# Bipartite Network"
-# 	print "#"*70
-# 	print "Number of Logs:    {0}".format(len(logs))
-# 	print "Number of Nodes:   {0}".format(network.number_of_nodes())
-# 	print "Number of Edges:   {0}".format(network.number_of_edges())
-# 	print "Number of Authors: {0}".format(len(authors))
-# 	print "Number of Files:   {0}".format(len(files))
-# 	
-# 	projection = project_graph(network, authors)
-# 	print "\n"
-# 	print "#"*70
-# 	print "# File Projection"
-# 	print "#"*70
-# 	print "Number of Nodes:   {0}".format(projection.number_of_nodes())
-# 	print "Number of Edges:   {0}".format(projection.number_of_edges())
-# 	print "Number of Files:   {0}".format(len(files))
-	
-	
-	
+
+
 if __name__ == '__main__':
 	main()
