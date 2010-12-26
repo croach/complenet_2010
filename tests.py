@@ -66,22 +66,25 @@ def decomp_by_betweenness(g1, g2, nodes):
 	results = decompose(g1, g2.copy(), nodes_by_betweenness)
 	return results
 
-def print_results(results):
-	sys.stdout.write("{0}\t{1}\t{2}\t{3}\t{4}\n".format(
-		'Random',
-		'Commit Count',
-		'Degree',
-		'Closeness',
-		'Betweenness'))
-	for i in xrange(len(results['random'])):
-		sys.stdout.write("{0}\t{1}\t{2}\t{3}\t{4}\n".format(
-			results['random'][i],
-			results['commits'][i],
-			results['degree'][i],
-			results['closeness'][i],
-			results['betweenness'][i]
-		))
+def decomp_by_eigenvector(g1, g2, nodes):
+	eigenvector = nx.eigenvector_centrality_numpy(g1)
+	eigenvector = dict([(node, eigenvector[node]) for node in nodes])
+	nodes_by_eigenvector = sort_dict(eigenvector, descending=True)
+	results = decompose(g1, g2.copy(), nodes_by_eigenvector)
+	return results
 
+def print_results(results):
+	keys = results.keys()
+	num_of_results = len(results.values()[0])
+
+	# Write the column headers
+	sys.stdout.write("\t".join(keys) + "\n")
+	
+	# Write the results
+	for i in xrange(num_of_results):
+		values = [str(results[key][i]) for key in keys]
+		sys.stdout.write("\t".join(values) + "\n")		
+	
 def remove_redundant_authors(logs):
 	"""
 	Replaces all author names in the logs with the matching author name
@@ -99,13 +102,14 @@ def main():
 	network = build_network(sourcedir, logs)
 	authors = [n for n in network if network.node[n]['type'] == 'author']
 	projection = project_graph(network, authors)
-	
+
 	results = {
-		'random'      : decomp_by_random(network, projection, authors),
-		'commits'     : decomp_by_commit_count(network, projection, logs),
-		'degree'      : decomp_by_degree(network, projection, authors),
-		'closeness'   : decomp_by_closeness(network, projection, authors),
-		'betweenness' : decomp_by_betweenness(network, projection, authors)
+		'Random'      : decomp_by_random(network, projection, authors),
+		'Commit Count': decomp_by_commit_count(network, projection, logs),
+		'Degree'      : decomp_by_degree(network, projection, authors),
+		'Closeness'   : decomp_by_closeness(network, projection, authors),
+		'Betweenness' : decomp_by_betweenness(network, projection, authors),
+		'Eigenvector' : decomp_by_eigenvector(network, projection, authors)
 	}
 	print_results(results)
 
